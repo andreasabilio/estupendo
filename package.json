@@ -1,0 +1,26 @@
+{
+  "name": "estupendo",
+  "version": "0.0.1",
+  "description": "Async npm module loader for the browser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andreasabilio/estupendo.git"
+  },
+  "keywords": [
+    "async",
+    "commonjs",
+    "npm",
+    "browser",
+    "loader"
+  ],
+  "author": "Andreas Abilio",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andreasabilio/estupendo/issues"
+  },
+  "homepage": "https://github.com/andreasabilio/estupendo#readme"
+}
