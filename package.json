@@ -4,7 +4,9 @@
   "description": "Async npm module loader for the browser",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node /dev/server.js",
+    "watch": "watchify www/js/main.js -o www/js/bundle.js -v"
   },
   "repository": {
     "type": "git",
@@ -12,15 +14,26 @@
   },
   "keywords": [
     "async",
-    "commonjs",
-    "npm",
     "browser",
+    "npm",
+    "commonjs",
     "loader"
   ],
-  "author": "Andreas Abilio",
+  "author": "Andreas Abilio helloabilio.dk",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/andreasabilio/estupendo/issues"
   },
-  "homepage": "https://github.com/andreasabilio/estupendo#readme"
+  "homepage": "https://github.com/andreasabilio/estupendo#readme",
+  "devDependencies": {
+    "express": "^4.13.4",
+    "jquery": "^2.2.3",
+    "mocha": "^2.4.5",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "dependency-graph": "^0.5.0",
+    "lodash": "^4.11.2",
+    "semver": "^5.1.0"
+  }
 }
