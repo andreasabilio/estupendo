@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node /dev/server.js",
-    "watch": "watchify www/js/main.js -o www/js/bundle.js -v"
+    "watch": "watchify src/estupendo.js -o src/estupendo.bundle.js -v"
   },
   "repository": {
     "type": "git",
@@ -34,6 +34,8 @@
   "dependencies": {
     "dependency-graph": "^0.5.0",
     "lodash": "^4.11.2",
-    "semver": "^5.1.0"
+    "promise-polyfill": "^5.0.0",
+    "semver": "^5.1.0",
+    "setasap": "^2.0.0"
   }
 }
