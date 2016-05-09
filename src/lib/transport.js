@@ -45,47 +45,67 @@ var onload = {
 
 var transport = {
 
-    request: function(options){
+    request: function(target){
         "use strict";
 
-        return new Promise(function(resolve, reject){
+        var _xhr    = new XMLHttpRequest();
+        var _method = 'GET';
+        var _url    = encodeURI(target);
+        var _async  = false;
 
-            // XXX
-            console.log('>>> New request promise');
+        // Open sync connection
+        _xhr.open(_method, _url, _async);
+        _xhr.send(null);
 
-            var _xhr    = new XMLHttpRequest();
-            var _method = options.method || 'GET';
-            var _url    = encodeURI(options.target);
-            var _timer  = setTimeout(function(){
-                reject(new Error('Estupendo ERROR: transport - Connection timeout'));
-            }, options.timeout || 30 * 1000);
+        // Known status code?
+        if( !(_xhr.status in onload) )
+            var e = new Error('Estupendo ERROR: unknown status code');
 
-            // Open and setup the connection
-            _xhr.open(_method, _url);
 
-            // Prepare response
-            _xhr.onload = function(){
-                clearTimeout(_timer);
-
-                console.log('>>> _xhr:', _xhr);
-
-                if( !(_xhr.status in onload) ) {
-                    var e = new Error('Estupendo ERROR: unknown status code');
-                    return reject(e);
-                }
-
-                resolve(onload[_xhr.status].call(_xhr));
-            };
-
-            // Send the request
-            _xhr.send();
-        });
+        // Handle response
+        return onload[_xhr.status].call(_xhr);
     }
+
+    // _request: function(options){
+    //     "use strict";
+    //
+    //     return new Promise(function(resolve, reject){
+    //
+    //         // XXX
+    //         console.log('>>> New request promise');
+    //
+    //         var _xhr    = new XMLHttpRequest();
+    //         var _method = options.method || 'GET';
+    //         var _url    = encodeURI(options.target);
+    //         var _timer  = setTimeout(function(){
+    //             reject(new Error('Estupendo ERROR: transport - Connection timeout'));
+    //         }, options.timeout || 30 * 1000);
+    //
+    //         // Open and setup the connection
+    //         _xhr.open(_method, _url);
+    //
+    //         // Prepare response
+    //         _xhr.onload = function(){
+    //             clearTimeout(_timer);
+    //
+    //             console.log('>>> _xhr:', _xhr);
+    //
+    //             if( !(_xhr.status in onload) ) {
+    //                 var e = new Error('Estupendo ERROR: unknown status code');
+    //                 return reject(e);
+    //             }
+    //
+    //             resolve(onload[_xhr.status].call(_xhr));
+    //         };
+    //
+    //         // Send the request
+    //         _xhr.send(null);
+    //     });
+    // }
 };
 
 module.exports = {
-    request: transport.request,
-    get: function(target, cb){
+    get: function(target){
         "use strict";
 
         // XXX
@@ -94,6 +114,6 @@ module.exports = {
         return transport.request({
             method: 'GET',
             target: target
-        }, cb);
+        });
     }
 };
