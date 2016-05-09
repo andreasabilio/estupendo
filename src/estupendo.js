@@ -33,13 +33,15 @@
             var modSrc = _transport.get(modId);
 
             // Wrap module
-            var wrapped = "window.estupendo.run("
+            var wrapped = "window.estupendo.run('"
                 + modId
-                + ","
+                + "',"
                 + "function(module){"
-                + " 'use strict;' "
-                + modSrc
-                + " return module; })";
+                // + " 'use strict;' "
+                + " console.log('+++ Running module'); "
+                + " module = {fromModule: true}; "
+                // + modSrc
+                + " return module; });";
 
 
             var scriptNode = document.createElement("script");
@@ -47,13 +49,11 @@
 
             scriptNode.innerHTML = wrapped;
             scriptNode.type      = "text\/javascript";
-            // scriptNode.onerror   = function(){
-            //     console.log('ERROR:', arguments);
-            // };
 
             // Insert into DOM and run module
             headNode.appendChild(scriptNode);
 
+            // DEV: In time?
             return _modules[modId];
         },
 
@@ -69,66 +69,19 @@
             // Run wrapper and store reference
             _modules[modId] = modFn(module);
         }
-
-        // fail: function(e){
-        //     "use strict";
-        //     throw e;
-        // }
-
-        // _require: function(path){
-        //     "use strict";
-        //
-        //     _transport
-        //         .get(path)
-        //         .then(estupendo.load.bind({}, path), estupendo.fail);
-        //
-        // },
-
-        // load: function(modName, modSrc){
-        //     "use strict";
-        //
-        //     var module = "window.estupendo.run("
-        //         + modName
-        //         + ","
-        //         + "function(module){"
-        //         + " 'use strict;' "
-        //         + modSrc
-        //         + " return module; })";
-        //
-        //     // var module = {exports: null};
-        //     //
-        //     // var x = eval('"use strict;" ' + scriptSrc);
-        //     //
-        //     // console.log('MODULE:', module);
-        //     //
-        //     // return module.exports;
-        //
-        //
-        //     var scriptNode = document.createElement("script");
-        //     var headNode   = document.querySelector('head');
-        //
-        //
-        //     scriptNode.innerHTML = module;
-        //     scriptNode.type      = "text\/javascript";
-        //     scriptNode.onerror   = function(){
-        //         console.log('ERROR:', arguments);
-        //     };
-        //
-        //     headNode.appendChild(scriptNode);
-        // },
     };
 
     // Register global require function
     window.require = estupendo.require;
 
-
-
-    // DEV //////////////////////////////////////////////////////////
-    var script = window.require('/script.js');
-
-    console.log('SCRIPT:', script);
-
-    script('mundo!');
-
 })();
 
+
+
+
+// DEV //////////////////////////////////////////////////////////
+var script = window.require('/script.js');
+
+console.log('SCRIPT:', script);
+
+// script('mundo!');
