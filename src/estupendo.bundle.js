@@ -3,11 +3,10 @@
 (function(){
     "use strict";
 
-    // Get transport tools
-    var _transport = require('./lib/transport');
-
-    // Module store
-    var _modules = {};
+    // Get dependencies
+    var _legacy    = require('./lib/legacy');
+    var _worker    = require('./lib/worker');
+    var _estupendo;
 
 
     // Abort if require is already defined
@@ -22,62 +21,13 @@
 
 
     // Define global estupendo object
-    var estupendo = window.estupendo = {
-
-        require: function(modId){
-
-            // Fetch?
-            if( modId in _modules)
-                return _modules[modId];
-
-            // Fetch
-            var modSrc = _transport.get(modId);
-
-            // Wrap module
-            var wrapped = "window.estupendo.run('"
-                + modId
-                + "',"
-                + "function(module){"
-                + modSrc
-                + " return module; });";
-
-
-            var scriptNode = document.createElement("script");
-            var headNode   = document.querySelector('head');
-
-            scriptNode.id        = modId;
-            scriptNode.innerHTML = wrapped;
-            scriptNode.type      = "text\/javascript";
-
-            // Insert into DOM and run module
-            headNode.appendChild(scriptNode);
-
-            // DEV: In time?
-            return _modules[modId];
-        },
-
-        run: function(modId, modFn){
-
-            // Is module known?
-            if( modId in _modules )
-                return;
-
-            // Define module object
-            var module = {};
-
-            // Run module
-            var exported = modFn(module);
-
-            // Analyze module && store pointer
-            if( 'exports' in exported && exported.exports)
-                _modules[modId] = exported.exports;
-            else
-                _modules[modId] = exported;
-        }
-    };
+    if(window.Worker)
+        _estupendo = window.estupendo = _worker;
+    else
+        _estupendo = window.estupendo = _legacy;
 
     // Register global require function
-    window.require = estupendo.require;
+    window.require = _estupendo.require;
 
 })();
 
@@ -85,25 +35,85 @@
 
 
 // DEV //////////////////////////////////////////////////////////
-var script = window.require('arr-diff');
 
-console.log('SCRIPT:', script);
+var arrDiff = window.require('arr-diff');
+
+// console.log('SCRIPT:', script);
 
 var a = ['a', 'b', 'c', 'd'];
 var b = ['b', 'c'];
 
-console.log(script(a, b));
+console.log(arrDiff(a, b));
 
-// script('mundo!');
+},{"./lib/legacy":2,"./lib/worker":5}],2:[function(require,module,exports){
 
-},{"./lib/transport":3}],2:[function(require,module,exports){
+// Get transport utility
+var _transport = require('./transport');
+
+// Module store
+var _modules = {};
+
+module.exports = {
+
+    require: function(modId){
+
+        // Fetch?
+        if( modId in _modules)
+            return _modules[modId];
+
+        // Fetch
+        var modSrc = _transport.get(modId);
+
+        // Wrap module
+        var wrapped = "window.estupendo.run('"
+            + modId
+            + "',"
+            + "function(module){"
+            + modSrc
+            + " return module; });";
+
+
+        var scriptNode = document.createElement("script");
+        var headNode   = document.querySelector('head');
+
+        scriptNode.id        = modId;
+        scriptNode.innerHTML = wrapped;
+        scriptNode.type      = "text\/javascript";
+
+        // Insert into DOM and run module
+        headNode.appendChild(scriptNode);
+
+        // DEV: In time?
+        return _modules[modId];
+    },
+
+    run: function(modId, modFn){
+
+        // Is module known?
+        if( modId in _modules )
+            return;
+
+        // Define module object
+        var module = {};
+
+        // Run module
+        var exported = modFn(module);
+
+        // Analyze module && store pointer
+        if( 'exports' in exported && exported.exports)
+            _modules[modId] = exported.exports;
+        else
+            _modules[modId] = exported;
+    }
+}
+},{"./transport":4}],3:[function(require,module,exports){
 
 var status = module.exports = {
     '200': function(){
         "use strict";
 
         // XXX
-        console.log('<<< 200');
+        // console.log('<<< 200');
 
         try{
             return JSON.parse(this.responseText);
@@ -136,7 +146,7 @@ var status = module.exports = {
         }
     }
 };
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 var status = require('./status');
 
@@ -162,4 +172,6 @@ module.exports = {
         return status[_xhr.status].call(_xhr);
     }
 };
-},{"./status":2}]},{},[1]);
+},{"./status":3}],5:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"./transport":4,"dup":2}]},{},[1]);

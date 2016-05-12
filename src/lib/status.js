@@ -4,7 +4,7 @@ var status = module.exports = {
         "use strict";
 
         // XXX
-        console.log('<<< 200');
+        // console.log('<<< 200');
 
         try{
             return JSON.parse(this.responseText);
