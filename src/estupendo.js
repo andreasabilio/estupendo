@@ -21,7 +21,7 @@
 
     // Define global estupendo object
     if(window.Worker)
-        _estupendo = window.estupendo = _worker;
+        _estupendo = window.estupendo = _legacy;
     else
         _estupendo = window.estupendo = _legacy;
 
