@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node /dev/server.js",
-    "watch": "watchify src/estupendo.js -o src/estupendo.bundle.js -v"
+    "watch": "watchify src/estupendo.js -o src/estupendo.bundle.js -v",
+    "wes": "watchify src/estupendo.js -o src/estupendo.bundle.js -v",
+    "wor": "watchify src/worker.js -o src/worker.bundle.js -v"
   },
   "repository": {
     "type": "git",
@@ -32,6 +34,7 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "co": "^4.6.0",
     "dependency-graph": "^0.5.0",
     "lodash": "^4.11.2",
     "promise-polyfill": "^5.0.0",
