@@ -37,16 +37,14 @@
                 + modId
                 + "',"
                 + "function(module){"
-                // + " 'use strict;' "
-                + " console.log('+++ Running module'); "
-                + " module = {fromModule: true}; "
-                // + modSrc
+                + modSrc
                 + " return module; });";
 
 
             var scriptNode = document.createElement("script");
             var headNode   = document.querySelector('head');
 
+            scriptNode.id        = modId;
             scriptNode.innerHTML = wrapped;
             scriptNode.type      = "text\/javascript";
 
@@ -66,8 +64,14 @@
             // Define module object
             var module = {};
 
-            // Run wrapper and store reference
-            _modules[modId] = modFn(module);
+            // Run module
+            var exported = modFn(module);
+
+            // Analyze module && store pointer
+            if( 'exports' in exported && exported.exports)
+                _modules[modId] = exported.exports;
+            else
+                _modules[modId] = exported;
         }
     };
 
@@ -80,8 +84,13 @@
 
 
 // DEV //////////////////////////////////////////////////////////
-var script = window.require('/script.js');
+var script = window.require('arr-diff');
 
 console.log('SCRIPT:', script);
+
+var a = ['a', 'b', 'c', 'd'];
+var b = ['b', 'c'];
+
+console.log(script(a, b));
 
 // script('mundo!');

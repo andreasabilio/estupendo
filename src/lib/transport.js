@@ -1,42 +1,5 @@
 
-var onload = {
-    '200': function(){
-        "use strict";
-
-        // XXX
-        console.log('<<< 200');
-
-        try{
-            return JSON.parse(this.responseText);
-        }catch(e){
-            return [this.responseText];
-        }
-    },
-    '304': function(){
-        "use strict";
-
-        // XXX
-        console.log('<<< 304');
-
-        try{
-            return JSON.parse(this.responseText);
-        }catch(e){
-            return this.responseText;
-        }
-    },
-    '404': function(){
-        "use strict";
-
-        // XXX
-        console.log('<<< 404: Not found!');
-
-        try{
-            return JSON.parse(this.responseText);
-        }catch(e){
-            return this.responseText;
-        }
-    }
-};
+var status = require('./status');
 
 module.exports = {
     get: function(target){
@@ -44,7 +7,7 @@ module.exports = {
 
         var _xhr    = new XMLHttpRequest();
         var _method = 'GET';
-        var _url    = encodeURI(target);
+        var _url    = encodeURI('modules/' + target + '/index.js');
         var _async  = false;
 
         // Open sync connection
@@ -52,11 +15,11 @@ module.exports = {
         _xhr.send(null);
 
         // Known status code?
-        if( !(_xhr.status in onload) )
+        if( !(_xhr.status in status) )
             throw new Error('Estupendo ERROR: unknown status code');
 
 
         // Handle response
-        return onload[_xhr.status].call(_xhr);
+        return status[_xhr.status].call(_xhr);
     }
 };

@@ -38,16 +38,14 @@
                 + modId
                 + "',"
                 + "function(module){"
-                // + " 'use strict;' "
-                + " console.log('+++ Running module'); "
-                + " module = {fromModule: true}; "
-                // + modSrc
+                + modSrc
                 + " return module; });";
 
 
             var scriptNode = document.createElement("script");
             var headNode   = document.querySelector('head');
 
+            scriptNode.id        = modId;
             scriptNode.innerHTML = wrapped;
             scriptNode.type      = "text\/javascript";
 
@@ -67,8 +65,14 @@
             // Define module object
             var module = {};
 
-            // Run wrapper and store reference
-            _modules[modId] = modFn(module);
+            // Run module
+            var exported = modFn(module);
+
+            // Analyze module && store pointer
+            if( 'exports' in exported && exported.exports)
+                _modules[modId] = exported.exports;
+            else
+                _modules[modId] = exported;
         }
     };
 
@@ -81,15 +85,20 @@
 
 
 // DEV //////////////////////////////////////////////////////////
-var script = window.require('/script.js');
+var script = window.require('arr-diff');
 
 console.log('SCRIPT:', script);
 
+var a = ['a', 'b', 'c', 'd'];
+var b = ['b', 'c'];
+
+console.log(script(a, b));
+
 // script('mundo!');
 
-},{"./lib/transport":2}],2:[function(require,module,exports){
+},{"./lib/transport":3}],2:[function(require,module,exports){
 
-var onload = {
+var status = module.exports = {
     '200': function(){
         "use strict";
 
@@ -127,6 +136,9 @@ var onload = {
         }
     }
 };
+},{}],3:[function(require,module,exports){
+
+var status = require('./status');
 
 module.exports = {
     get: function(target){
@@ -134,7 +146,7 @@ module.exports = {
 
         var _xhr    = new XMLHttpRequest();
         var _method = 'GET';
-        var _url    = encodeURI(target);
+        var _url    = encodeURI('modules/' + target + '/index.js');
         var _async  = false;
 
         // Open sync connection
@@ -142,12 +154,12 @@ module.exports = {
         _xhr.send(null);
 
         // Known status code?
-        if( !(_xhr.status in onload) )
+        if( !(_xhr.status in status) )
             throw new Error('Estupendo ERROR: unknown status code');
 
 
         // Handle response
-        return onload[_xhr.status].call(_xhr);
+        return status[_xhr.status].call(_xhr);
     }
 };
-},{}]},{},[1]);
+},{"./status":2}]},{},[1]);
