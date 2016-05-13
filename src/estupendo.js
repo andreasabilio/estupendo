@@ -9,7 +9,7 @@
 
     // Errors
     var _requireE   = 'Estupendo ERROR: window.estupendo is already defined';
-    var _estupendoE = 'Estupendo ERROR: window.require is already defined'
+    var _estupendoE = 'Estupendo ERROR: window.require is already defined';
 
 
     // Abort if require is already defined
@@ -25,7 +25,7 @@
 
     // Define global estupendo object
     if(window.Worker)
-        _estupendo = window.estupendo = _legacy;
+        _estupendo = window.estupendo = _worker;
     else
         _estupendo = window.estupendo = _legacy;
 
@@ -39,11 +39,20 @@
 
 // DEV //////////////////////////////////////////////////////////
 
-var arrDiff = window.require('arr-diff');
+var arrDiff = window.require('arr-diff').then(function(module){
+    "use strict";
 
-// console.log('SCRIPT:', arrDiff);
+    if( 'function' !== typeof module )
+        return module;
+
+    var a = ['a', 'b', 'c', 'd'];
+    var b = ['b', 'c'];
+    console.log(module(a, b));
+});
+
+console.log('SCRIPT:', arrDiff);
 
 var a = ['a', 'b', 'c', 'd'];
 var b = ['b', 'c'];
 
-console.log(arrDiff(a, b));
+// console.log(arrDiff(a, b));

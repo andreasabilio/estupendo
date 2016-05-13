@@ -2,11 +2,8 @@
 
 // XXX
 // console.log('WORKER WINDOW:', window);
-console.log('WORKER:', this);
+console.log('-- WORKER:', Worker);
 
-postMessage({
-    fromWorker: true
-});
 
 // Register listener
 onmessage = function(msg){
@@ -25,5 +22,5 @@ onmessage = function(msg){
     console.log('WORKER closing now');
 
     // Terminate the worker
-    // close();
+    close();
 };

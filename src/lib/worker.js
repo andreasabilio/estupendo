@@ -1,24 +1,44 @@
 
-var Promise = require('promise-polyfill');
-var setAsap = require('setasap');
-    Promise._setImmediateFn(setAsap);
+var co        = require('co');
+var transport = require('./transport');
 
 // Module store
 var _modules = {};
 
-var requestWorker = function(modId, callback){
+var _domInsert = function(modId, modSrc){
     "use strict";
 
-    // Start worker
-    var worker = new window.Worker('/src/worker.js');
+    // XXX
+    // console.log('***', modSrc);
 
-    // Attach callback
-    worker.onmessage = callback;
+    // Wrap module
+    var wrapped = "window.estupendo.run('"
+        + modId
+        + "',"
+        + "function*(module){\n"
+        + "console.log('RUNNING GENERATOR');\n"
+        + modSrc.split('require(').join('yield require(')
+        + "\n// Return to estupendo"
+        + "\nreturn module;\n});";
 
-    // Supply params to worker
-    worker.postMessage(modId);
+    // XXX
+    console.log('WRAPPED:', wrapped);
 
-    // worker.terminate();
+
+    // Nodes
+    var scriptNode = document.createElement("script");
+    var headNode   = document.querySelector('head');
+
+    // Node settings
+    scriptNode.id        = modId;
+    scriptNode.innerHTML = wrapped;
+    scriptNode.type      = "text\/javascript";
+
+    // XXX
+    // console.log('>>> Placing module in DOM');
+
+    // Insert into DOM and thereby run
+    headNode.appendChild(scriptNode);
 };
 
 module.exports = {
@@ -33,22 +53,30 @@ module.exports = {
         // XXX
         console.log('### Running worker require');
 
-        return new Promise(function(resolve, reject){
+        // Store module promise
+        _modules[modId] = transport.async(modId).then(function(msg){
 
-            
+            // XXX
+            // console.log('>>> DOM:', msg.data);
 
+            _domInsert(modId, msg.data[0]);
         });
+
+        // Return promise
+        return _modules[modId];
     },
 
     run: function(modId, modFn){
-        "use strict";
 
-        // Is module known?
-        if( modId in _modules )
-            return;
+        // // Is module known?
+        // if( modId in _modules )
+        //     return;
 
-        // Run module
-        var exported = modFn({});
+        // XXX
+        // console.log('>>> RUNNING', modId);
+
+        // Run module generator
+        var exported = co.wrap(modFn)({});
 
         // Analyze module && store pointer
         if( 'exports' in exported && exported.exports)
