@@ -4,6 +4,7 @@ var transport = require('./transport');
 
 // Module store
 var _modules = {};
+var _buffer  = null;
 
 var _domInsert = function(modId, modSrc){
     "use strict";
@@ -16,13 +17,12 @@ var _domInsert = function(modId, modSrc){
         + modId
         + "',"
         + "function*(module){\n"
-        + "console.log('RUNNING GENERATOR');\n"
         + modSrc.split('require(').join('yield require(')
         + "\n// Return to estupendo"
         + "\nreturn module;\n});";
 
     // XXX
-    console.log('WRAPPED:', wrapped);
+    // console.log('WRAPPED:', wrapped);
 
 
     // Nodes
@@ -51,15 +51,12 @@ module.exports = {
             return _modules[modId];
 
         // XXX
-        console.log('### Running worker require');
+        // console.log('### Running worker require');
 
         // Store module promise
         _modules[modId] = transport.async(modId).then(function(msg){
-
-            // XXX
-            // console.log('>>> DOM:', msg.data);
-
             _domInsert(modId, msg.data[0]);
+            return _buffer;
         });
 
         // Return promise
@@ -68,20 +65,28 @@ module.exports = {
 
     run: function(modId, modFn){
 
-        // // Is module known?
-        // if( modId in _modules )
-        //     return;
+        var module = co.wrap(modFn);
 
-        // XXX
-        // console.log('>>> RUNNING', modId);
+        _buffer = module({}).then(function(mod){
+            "use strict";
 
-        // Run module generator
-        var exported = co.wrap(modFn)({});
+            return mod.exports || mod;
 
-        // Analyze module && store pointer
-        if( 'exports' in exported && exported.exports)
-            _modules[modId] = exported.exports;
-        else
-            _modules[modId] = exported;
+            // // Analyze module && store pointer
+            // if( 'exports' in mod && mod.exports)
+            //      mod.exports;
+            // else
+            //     _buffer = mod;
+
+        });
+
+        // // Run module generator
+        // var exported = co.wrap(modFn)({});
+        //
+        // // Analyze module && store pointer
+        // if( 'exports' in exported && exported.exports)
+        //     _modules[modId] = exported.exports;
+        // else
+        //     _modules[modId] = exported;
     }
 };
