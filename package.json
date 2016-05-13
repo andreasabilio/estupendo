@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node /dev/server.js",
-    "watch": "watchify src/estupendo.js -o src/estupendo.bundle.js -v"
+    "watch": "watchify src/estupendo.js -o src/estupendo.bundle.js -v",
+    "wes": "watchify src/estupendo.js -t babelify -o src/estupendo.bundle.js -v",
+    "wor": "watchify src/worker.js -t babelify -o src/worker.bundle.js -v"
   },
   "repository": {
     "type": "git",
@@ -26,12 +28,15 @@
   },
   "homepage": "https://github.com/andreasabilio/estupendo#readme",
   "devDependencies": {
+    "babel-cli": "^6.8.0",
+    "babelify": "^7.3.0",
     "express": "^4.13.4",
     "jquery": "^2.2.3",
     "mocha": "^2.4.5",
     "watchify": "^3.7.0"
   },
   "dependencies": {
+    "co": "^4.6.0",
     "dependency-graph": "^0.5.0",
     "lodash": "^4.11.2",
     "promise-polyfill": "^5.0.0",

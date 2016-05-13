@@ -2,81 +2,35 @@
 (function(){
     "use strict";
 
-    // Get transport tools
-    var _transport = require('./lib/transport');
+    // Get dependencies
+    var _legacy    = require('./lib/legacy');
+    var _worker    = require('./lib/worker');
+    var _estupendo;
 
-    // Module store
-    var _modules = {};
+    // Errors
+    var _requireE   = 'Estupendo ERROR: window.estupendo is already defined';
+    var _estupendoE = 'Estupendo ERROR: window.require is already defined';
 
 
     // Abort if require is already defined
     if( 'require' in window ){
-        throw new Error('Estupendo ERROR: window.require is already defined');
+        throw new Error(_requireE);
     }
 
     // Abort if require is already defined
     if( 'estupendo' in window ){
-        throw new Error('Estupendo ERROR: window.estupendo is already defined');
+        throw new Error(_estupendoE);
     }
 
 
     // Define global estupendo object
-    var estupendo = window.estupendo = {
-
-        require: function(modId){
-
-            // Fetch?
-            if( modId in _modules)
-                return _modules[modId];
-
-            // Fetch
-            var modSrc = _transport.get(modId);
-
-            // Wrap module
-            var wrapped = "window.estupendo.run('"
-                + modId
-                + "',"
-                + "function(module){"
-                + modSrc
-                + " return module; });";
-
-
-            var scriptNode = document.createElement("script");
-            var headNode   = document.querySelector('head');
-
-            scriptNode.id        = modId;
-            scriptNode.innerHTML = wrapped;
-            scriptNode.type      = "text\/javascript";
-
-            // Insert into DOM and run module
-            headNode.appendChild(scriptNode);
-
-            // DEV: In time?
-            return _modules[modId];
-        },
-
-        run: function(modId, modFn){
-
-            // Is module known?
-            if( modId in _modules )
-                return;
-
-            // Define module object
-            var module = {};
-
-            // Run module
-            var exported = modFn(module);
-
-            // Analyze module && store pointer
-            if( 'exports' in exported && exported.exports)
-                _modules[modId] = exported.exports;
-            else
-                _modules[modId] = exported;
-        }
-    };
+    if(window.Worker)
+        _estupendo = window.estupendo = _worker;
+    else
+        _estupendo = window.estupendo = _legacy;
 
     // Register global require function
-    window.require = estupendo.require;
+    window.require = _estupendo.require;
 
 })();
 
@@ -84,13 +38,27 @@
 
 
 // DEV //////////////////////////////////////////////////////////
-var script = window.require('arr-diff');
 
-console.log('SCRIPT:', script);
+var arrDiff = window.require('arr-diff').then(function(module){
+    "use strict";
 
-var a = ['a', 'b', 'c', 'd'];
-var b = ['b', 'c'];
+    // console.log('MODULE:', module);
 
-console.log(script(a, b));
+    if( 'function' !== typeof module )
+        return module;
 
-// script('mundo!');
+    var a = ['a', 'b', 'c', 'd'];
+    var b = ['b', 'c'];
+    console.log(module(a, b));
+
+    window.require('arr-flatten').then(function(arrFlatten){
+        console.log(arrFlatten([a, b]));
+    });
+});
+
+// console.log('SCRIPT:', arrDiff);
+
+// var a = ['a', 'b', 'c', 'd'];
+// var b = ['b', 'c'];
+
+// console.log(arrDiff(a, b));
