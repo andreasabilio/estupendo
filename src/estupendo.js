@@ -7,15 +7,19 @@
     var _worker    = require('./lib/worker');
     var _estupendo;
 
+    // Errors
+    var _requireE   = 'Estupendo ERROR: window.estupendo is already defined';
+    var _estupendoE = 'Estupendo ERROR: window.require is already defined'
+
 
     // Abort if require is already defined
     if( 'require' in window ){
-        throw new Error('Estupendo ERROR: window.require is already defined');
+        throw new Error(_requireE);
     }
 
     // Abort if require is already defined
     if( 'estupendo' in window ){
-        throw new Error('Estupendo ERROR: window.estupendo is already defined');
+        throw new Error(_estupendoE);
     }
 
 

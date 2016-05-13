@@ -14,25 +14,28 @@ module.exports = {
             return _modules[modId];
 
         // Fetch
-        var modSrc = _transport.get(modId);
+        var modSrc = _transport.sync(modId);
 
         // Wrap module
         var wrapped = "window.estupendo.run('"
             + modId
             + "',"
-            + "function(module){"
+            + "function(module){\n"
             + modSrc
-            + " return module; });";
+            + "\n// Return to estupendo"
+            + "\nreturn module;\n});";
 
 
+        // Nodes
         var scriptNode = document.createElement("script");
         var headNode   = document.querySelector('head');
 
+        // Node settings
         scriptNode.id        = modId;
         scriptNode.innerHTML = wrapped;
         scriptNode.type      = "text\/javascript";
 
-        // Insert into DOM and run module
+        // Insert into DOM and thereby run
         headNode.appendChild(scriptNode);
 
         // DEV: In time?

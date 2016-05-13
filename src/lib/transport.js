@@ -2,7 +2,7 @@
 var status = require('./status');
 
 module.exports = {
-    get: function(target){
+    sync: function(target){
         "use strict";
 
         var _xhr    = new XMLHttpRequest();
@@ -21,5 +21,11 @@ module.exports = {
 
         // Handle response
         return status[_xhr.status].call(_xhr);
+    },
+    
+    async: function(modId){
+        "use strict";
+        
+        
     }
 };

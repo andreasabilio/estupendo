@@ -1,9 +1,7 @@
 
-// var Promise = require('promise-polyfill');
-// var setAsap = require('setasap');
-//     Promise._setImmediateFn(setAsap);
-
-var dosync = require('./syncker');
+var Promise = require('promise-polyfill');
+var setAsap = require('setasap');
+    Promise._setImmediateFn(setAsap);
 
 // Module store
 var _modules = {};
@@ -35,26 +33,27 @@ module.exports = {
         // XXX
         console.log('### Running worker require');
 
-        // XXX
-        // var result = dosync(requestWorker, modId);
-        // console.log('  ');
-        // console.log('### RESULT:', result);
+        return new Promise(function(resolve, reject){
 
-        var result = dosync(function(args, cb){
-            console.log('ASYNC run with:', args);
-            setTimeout(function(){
-                cb(args);
-            }, 5000);
-        }, 'hello world!!');
-        console.log(' ');
-        console.log('>>> RESULT:', result);
+            
 
-        // DEV
-        return result;
+        });
     },
 
     run: function(modId, modFn){
         "use strict";
 
+        // Is module known?
+        if( modId in _modules )
+            return;
+
+        // Run module
+        var exported = modFn({});
+
+        // Analyze module && store pointer
+        if( 'exports' in exported && exported.exports)
+            _modules[modId] = exported.exports;
+        else
+            _modules[modId] = exported;
     }
 };
