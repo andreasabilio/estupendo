@@ -15,24 +15,14 @@ var setAsap   = require('setasap');
 
 var wrapOnMessage = function estupendoWrapper(){
 
-    // XXX
-    // console.log('WORKER starting');
-
     // Define scoped modId
     var result = null;
 
 
     /*@@@*/
 
-
-    // XXX
-    // console.log('WORKER result:', result);
-
     // Return module source
     postMessage(result);
-
-    // XXX
-    // console.log('WORKER closing');
 
     // Terminate the worker
     close();
@@ -73,9 +63,6 @@ var compileWorkerSrc = function(fnSrc, args){
 
     // Build the worker source
     workerSrc.push("// Estupendo Web Worker\n");
-    // workerSrc.push("var co = ");
-    // workerSrc.push(co.toString());
-    // workerSrc.push(";\n(");
     workerSrc.push("(");
     workerSrc.push(wrapSrc[0]);
     workerSrc.push("\nresult = (");
@@ -86,22 +73,6 @@ var compileWorkerSrc = function(fnSrc, args){
     workerSrc.push(wrapSrc[1]);
     workerSrc.push(")();");
 
-    // var workerSrc =
-    //     + "var co = "
-    //     + co.toString()
-    //     + ";\n("
-    //     + wrapSrc[0]
-    //     + '\nresult = ('
-    //     + fnSrc
-    //     + ')('
-    //     + args
-    //     + ');\n'
-    //     + wrapSrc[1]
-    //     + ")();";
-
-    // XXX
-    // console.log('>>> workerSrc:', workerSrc.join(''));
-
     return workerSrc.join('');
 };
 
@@ -109,50 +80,10 @@ var compileWorkerSrc = function(fnSrc, args){
 module.exports = function(){
     "use strict";
 
-    // XXX
-    // console.log('RIWW arguments', arguments);
-
     // Parse options
     var timeout = 7000;
     var params  = Array.prototype.slice.call(arguments);
     var fnSrc   = params.splice(0, 1);
-    var args    = params.map(function(arg){
-        return '"' + arg + '"';
-    }).join(', ');
-
-    // // Wrap the function
-    // var workerSrc = [];
-    // var wrapSrc   = wrapOnMessage.toString().split('/*@@@*/');
-    //
-    // // Build the worker source
-    // workerSrc.push("// Estupendo Web Worker\n");
-    // // workerSrc.push("var co = ");
-    // workerSrc.push(co.toString());
-    // workerSrc.push(";\n(");
-    // workerSrc.push(wrapSrc[0]);
-    // workerSrc.push("\nresult = (");
-    // workerSrc.push(fnSrc);
-    // workerSrc.push(")(");
-    // workerSrc.push(args);
-    // workerSrc.push(");\n");
-    // workerSrc.push(wrapSrc[1]);
-    // workerSrc.push(")();");
-    //
-    // // var workerSrc =
-    // //     + "var co = "
-    // //     + co.toString()
-    // //     + ";\n("
-    // //     + wrapSrc[0]
-    // //     + '\nresult = ('
-    // //     + fnSrc
-    // //     + ')('
-    // //     + args
-    // //     + ');\n'
-    // //     + wrapSrc[1]
-    // //     + ")();";
-    //
-    // // XXX
-    // // console.log('>>> workerSrc:', workerSrc.join(''));
 
 
     // Launch worker
