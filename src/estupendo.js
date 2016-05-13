@@ -37,7 +37,7 @@
 
 var arrDiff = window.require('arr-diff');
 
-// console.log('SCRIPT:', script);
+// console.log('SCRIPT:', arrDiff);
 
 var a = ['a', 'b', 'c', 'd'];
 var b = ['b', 'c'];
