@@ -1,36 +1,11 @@
 
 var co        = require('co');
+var domInsert = require('./domInsert');
 var transport = require('./transport');
 
 // Module store
 var _modules = {};
 var _buffer  = null;
-
-var _domInsert = function(modId, modSrc){
-    "use strict";
-
-    // Wrap module
-    var wrapped = "window.estupendo.run('"
-        + modId
-        + "',"
-        + "function*(module){\n"
-        + modSrc.split('require(').join('yield require(')
-        + "\n// Return to estupendo"
-        + "\nreturn module;\n});";
-
-
-    // Nodes
-    var scriptNode = document.createElement("script");
-    var headNode   = document.querySelector('head');
-
-    // Node settings
-    scriptNode.id        = modId;
-    scriptNode.innerHTML = wrapped;
-    scriptNode.type      = "text\/javascript";
-
-    // Insert into DOM and thereby run
-    headNode.appendChild(scriptNode);
-};
 
 module.exports = {
 
@@ -43,7 +18,7 @@ module.exports = {
 
         // Store module promise
         _modules[modId] = transport.async(modId).then(function(msg){
-            _domInsert(modId, msg.data[0]);
+            domInsert(modId, msg.data[0]);
             return _buffer;
         });
 
@@ -52,14 +27,6 @@ module.exports = {
     },
 
     run: function(modId, modFn){
-
-        var module = co.wrap(modFn);
-
-        _buffer = module({}).then(function(mod){
-            "use strict";
-
-            return mod.exports || mod;
-
-        });
+        _buffer = co.wrap(modFn)({});
     }
 };

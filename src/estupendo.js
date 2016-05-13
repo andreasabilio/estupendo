@@ -42,7 +42,7 @@
 var arrDiff = window.require('arr-diff').then(function(module){
     "use strict";
 
-    console.log('MODULE:', module);
+    // console.log('MODULE:', module);
 
     if( 'function' !== typeof module )
         return module;
@@ -50,6 +50,10 @@ var arrDiff = window.require('arr-diff').then(function(module){
     var a = ['a', 'b', 'c', 'd'];
     var b = ['b', 'c'];
     console.log(module(a, b));
+
+    window.require('arr-flatten').then(function(arrFlatten){
+        console.log(arrFlatten([a, b]));
+    });
 });
 
 // console.log('SCRIPT:', arrDiff);
