@@ -13,13 +13,12 @@ var setAsap   = require('setasap');
     Promise._setImmediateFn(setAsap);
 
 
-var wrapOnMessage = function estupendoWrapper(){
+var estupendoWrapper = function estupendoWrapper(){
+
+    var result;
 
     // Define scoped modId
-    var result = null;
-
-
-    /*@@@*/
+    onmessage = null;
 
     // Return module source
     postMessage(result);
@@ -27,6 +26,7 @@ var wrapOnMessage = function estupendoWrapper(){
     // Terminate the worker
     close();
 
+    /* @@@ DO NOT REMOVE*/
 };
 
 var buildBlob = function(blob){
@@ -51,43 +51,33 @@ var buildBlob = function(blob){
 };
 
 
-var compileWorkerSrc = function(fnSrc, args){
+var buildWorkerSrc = function(fnSrc){
     "use strict";
 
     // Setup
     var workerSrc = [];
-    var wrapSrc   = wrapOnMessage.toString().split('/*@@@*/');
-    var _args     = args.map(function(arg){
-        return '"' + arg + '"';
-    }).join(', ');
+    var wrapSrc = estupendoWrapper.toString()
+        .replace('onmessage = null;', 'onmessage = ' + fnSrc.slice(0, -1))
+        .replace('/* @@@ DO NOT REMOVE*/', '};');
 
-    // Build the worker source
     workerSrc.push("// Estupendo Web Worker\n");
     workerSrc.push("(");
-    workerSrc.push(wrapSrc[0]);
-    workerSrc.push("\nresult = (");
-    workerSrc.push(fnSrc);
-    workerSrc.push(")(");
-    workerSrc.push(_args);
-    workerSrc.push(");\n");
-    workerSrc.push(wrapSrc[1]);
+    workerSrc.push(wrapSrc);
     workerSrc.push(")();");
 
     return workerSrc.join('');
 };
 
 
-module.exports = function(){
+module.exports = function(fnSrc, params){
     "use strict";
 
-    // Parse options
+    // Setup
     var timeout = 7000;
-    var params  = Array.prototype.slice.call(arguments);
-    var fnSrc   = params.splice(0, 1);
 
 
     // Launch worker
-    var workerSrc  = compileWorkerSrc(fnSrc, params);
+    var workerSrc  = buildWorkerSrc(fnSrc);
     var workerBlob = buildBlob(workerSrc);
     var worker = new Worker(window.URL.createObjectURL(workerBlob));
 
@@ -97,6 +87,9 @@ module.exports = function(){
 
         // Register message handler
         worker.onmessage = resolve;
+        
+        // SEnd params to worker
+        worker.postMessage(params);
 
         // Setup timeout
         setTimeout(function(){

@@ -1,6 +1,6 @@
 
 var co        = require('co');
-var domInsert = require('./domInsert');
+var modRunner = require('./modRunner');
 var transport = require('./transport');
 
 // Module store
@@ -18,7 +18,7 @@ module.exports = {
 
         // Store module promise
         _modules[modId] = transport.async(modId).then(function(msg){
-            domInsert(modId, msg.data[0]);
+            modRunner(modId, msg.data[0]);
             return _buffer;
         });
 
@@ -27,6 +27,6 @@ module.exports = {
     },
 
     run: function(modId, modFn){
-        _buffer = co.wrap(modFn)({});
+        _buffer = co.wrap(modFn)({}, null);
     }
 };

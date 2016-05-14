@@ -5,29 +5,22 @@
     // Get dependencies
     var _legacy    = require('./lib/legacy');
     var _worker    = require('./lib/worker');
-    var _estupendo;
-
-    // Errors
-    var _requireE   = 'Estupendo ERROR: window.estupendo is already defined';
-    var _estupendoE = 'Estupendo ERROR: window.require is already defined';
+    var _estupendo = window.estupendo || {};
 
 
     // Abort if require is already defined
     if( 'require' in window ){
-        throw new Error(_requireE);
-    }
-
-    // Abort if require is already defined
-    if( 'estupendo' in window ){
-        throw new Error(_estupendoE);
+        throw new Error('Estupendo ERROR: window.require is already defined');
     }
 
 
     // Define global estupendo object
     if(window.Worker)
-        _estupendo = window.estupendo = _worker;
+        Object.assign(_estupendo, _worker);
+        // _estupendo = window.estupendo = _worker;
     else
-        _estupendo = window.estupendo = _legacy;
+        Object.assign(_estupendo, _legacy);
+        // _estupendo = window.estupendo = _legacy;
 
     // Register global require function
     window.require = _estupendo.require;
@@ -56,7 +49,7 @@ var arrDiff = window.require('arr-diff').then(function(module){
     });
 });
 
-// console.log('SCRIPT:', arrDiff);
+console.log('ESTUPENDO:', estupendo);
 
 // var a = ['a', 'b', 'c', 'd'];
 // var b = ['b', 'c'];

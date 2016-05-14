@@ -7,14 +7,19 @@ var riww   = require('./riww');
 var transport = module.exports = {
 
     // Sync loading strategy
-    sync: function(modId){
+    sync: function(msg){
         "use strict";
 
-        // Setup request
+        // Setup
+        // var _config = window.estupendo.config;
         var _xhr    = new XMLHttpRequest();
         var _method = 'GET';
-        var _url    = encodeURI('http://localhost:3000/modules/' + modId + '/index.js');
+        var _target = msg.data.modulesUrl + msg.data.modId + '/index.js';
+        var _url    = encodeURI(_target);
         var _async  = false;
+
+        // XXX
+        // console.log('>>>', _url);
 
         // Open sync connection
         _xhr.open(_method, _url, _async);
@@ -23,9 +28,9 @@ var transport = module.exports = {
         // TODO: Handle HTTP errors
 
         try{
-            return JSON.parse(_xhr.responseText);
+            result = JSON.parse(_xhr.responseText);
         }catch(e){
-            return [_xhr.responseText];
+            result = [_xhr.responseText];
         }
     },
 
@@ -33,6 +38,9 @@ var transport = module.exports = {
     async: function(modId){
         "use strict";
         
-        return riww(transport.sync.toString(), modId);
+        return riww(transport.sync.toString(), {
+            modulesUrl: window.estupendo.config.modulesUrl,
+            modId:      modId
+        });
     }
 };
