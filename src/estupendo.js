@@ -18,54 +18,58 @@
     var _estupendo = window.estupendo = {};
 
     // Setup configuration
-    var _dataset = document.currentScript.dataset;
-    var _rootUrl = (function(){
+    var _dataset      = document.currentScript.dataset;
+    _estupendo.config = JSON.parse(JSON.stringify(_dataset));
 
-        var href = window.location.href;
-        return href;
-    })();
-
-    _estupendo.config         = JSON.parse(JSON.stringify(_dataset));
-    _estupendo.config.rootUrl = _rootUrl;
-
+    // {
+    //     root:    window.location.href,
+    //     main:    _dataset.main,
+    //     modules: _dataset.modules || 'node_modules'
+    // };
 
     // Define global estupendo object
-    if(window.Worker)
-        Object.assign(_estupendo, _worker);
-    else
-        Object.assign(_estupendo, _legacy);
+    Object.assign(_estupendo, (window.Worker)? _worker : _legacy);
 
     // Register global require function
     window.require = _estupendo.require;
 
+    // TODO
+    // Require returning promise
+    // and accepting a generator fn in then()
+    window.grequire = function(){};
+
+    // Run main script?
+    if(_estupendo.config.main)
+        _estupendo.require(_estupendo.config.main);
+
 })();
 
 
-
-// DEV //////////////////////////////////////////////////////////
-
-// window.estupendo.load('arr.diff', {});
-
-console.log('ESTUPENDO:', estupendo);
-
-window.require('arr-diff').then(function(module){
-    "use strict";
-
-    // console.log('MODULE:', module);
-
-    if( 'function' !== typeof module )
-        return module;
-
-    var a = ['a', 'b', 'c', 'd'];
-    var b = ['b', 'c'];
-    console.log(module(a, b));
-
-    window.require('arr-flatten').then(function(arrFlatten){
-        console.log(arrFlatten([a, b]));
-    });
-});
-
-// var a = ['a', 'b', 'c', 'd'];
-// var b = ['b', 'c'];
-
-// console.log(arrDiff(a, b));
+//
+// // DEV //////////////////////////////////////////////////////////
+//
+// // window.estupendo.load('arr.diff', {});
+//
+// console.log('ESTUPENDO:', estupendo);
+//
+// window.require('arr-diff').then(function(module){
+//     "use strict";
+//
+//     // console.log('MODULE:', module);
+//
+//     if( 'function' !== typeof module )
+//         return module;
+//
+//     var a = ['a', 'b', 'c', 'd'];
+//     var b = ['b', 'c'];
+//     console.log(module(a, b));
+//
+//     window.require('arr-flatten').then(function(arrFlatten){
+//         console.log(arrFlatten([a, b]));
+//     });
+// });
+//
+// // var a = ['a', 'b', 'c', 'd'];
+// // var b = ['b', 'c'];
+//
+// // console.log(arrDiff(a, b));

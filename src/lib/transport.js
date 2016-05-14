@@ -1,25 +1,55 @@
 
 
-var riww        = require('./riww');
-var status      = require('./status');
+var riww   = require('./riww');
+var status = require('./status')
 
 
-var buildTarget = function(modId){
+var getModFile = function(config){
+    "use strict";
+
+    if(!config.loadPackage)
+        return '/index.js';
+
+    // TODO
+    return false;
+};
+
+
+var buildUrl = function(target){
     "use strict";
 
     // XXX
-    // console.log('CONFIG:', window.estupendo.config);
+    console.log('CONFIG:', window.estupendo.config);
+    
+    // Parse defaults && policy
+    var config = Object.assign({
+        modules:    'node_modules',
+        loadPackage: false
+    }, window.estupendo.config, {
+        root: window.location.href
+    });
 
-    var config      = window.estupendo.config;
-    var nodeModules = config.nodeModules.split('/').join('') + '/';
-    var target      = [];
+    // Setup
+    var url    = [config.root];
+    var prefix = target.substring(0,1);
 
-    target.push(config.rootUrl);
-    target.push(nodeModules);
-    target.push(modId);
-    target.push('/index.js');
+    // console.log('Prefix:', prefix);
 
-    return target.join('');
+    // Build url
+    switch(prefix){
+        case '/':
+            url.push(target.replace('/', ''));
+            break;
+        case './':
+            url.push(target.replace('./', ''));
+            break;
+        default:
+            url.push(config.modules.split('/').join('') + '/');
+            url.push(target);
+            url.push(getModFile(target));
+    }
+
+    return url.join('');
 
 };
 
@@ -37,7 +67,7 @@ var transport = module.exports = {
         var async  = false;
 
         // XXX
-        // console.log('>>>', url);
+        console.log('>>>', url);
 
         // Open sync connection
         xhr.open(method, url, async);
@@ -59,8 +89,11 @@ var transport = module.exports = {
         // XXX
         // console.log('window:', window);
 
+        // Convert sync() to string for execution in worker
         var fnSrc = transport.sync.toString();
-        var args  = buildTarget.call(window.estupendo.config, modId);
+
+        // Prepare sync() args to be passed inside the worker
+        var args  = buildUrl(modId);
 
         // Run In Web Worker
         return riww(fnSrc, args).then(function(msg){

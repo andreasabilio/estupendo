@@ -2,13 +2,13 @@
 console.log('===== RUNNING MAIN JS =====');
 
 
-// // DEV //////////////////////////////////////////////////////////
-//
-// // window.estupendo.load('arr.diff', {});
-//
-// console.log('ESTUPENDO:', estupendo);
-//
-// window.require('arr-diff').then(function(module){
+// DEV //////////////////////////////////////////////////////////
+
+// window.estupendo.load('arr.diff', {});
+
+console.log('ESTUPENDO:', estupendo);
+
+// require('arr-diff').then(function(module){
 //     "use strict";
 //
 //     // console.log('MODULE:', module);
@@ -20,12 +20,16 @@ console.log('===== RUNNING MAIN JS =====');
 //     var b = ['b', 'c'];
 //     console.log(module(a, b));
 //
-//     window.require('arr-flatten').then(function(arrFlatten){
+//     require('arr-flatten').then(function(arrFlatten){
 //         console.log(arrFlatten([a, b]));
 //     });
 // });
-//
-// // var a = ['a', 'b', 'c', 'd'];
-// // var b = ['b', 'c'];
-//
-// // console.log(arrDiff(a, b));
+
+
+
+var a = ['a', 'b', 'c', 'd'];
+var b = ['b', 'c'];
+
+var arrDiff = require('arr-diff');
+
+console.log(arrDiff(a, b));

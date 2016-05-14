@@ -16,7 +16,7 @@ var notFound = function(req, res){
     // XXX
     console.log('>>> NOT FOUND');
 
-    res.status(500).json({error: 404});
+    res.status(404).json({error: 404});
 };
 
 
