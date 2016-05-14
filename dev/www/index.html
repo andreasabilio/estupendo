@@ -1,14 +1,13 @@
 <html>
     <head>
         <title>Estupendo playground</title>
-        <script type="text/javascript">
-            var estupendo = {};
-            estupendo.config = {
-                modulesUrl: 'http://localhost:3000/modules/',
-                main: '/script.js'
-            };
+
+        <script type="text/javascript"
+                data-main="/src/main.js"
+                data-node-modules="/modules"
+                src="/src/estupendo.bundle.js">
         </script>
-        <script type="text/javascript" src="/src/estupendo.bundle.js"></script>
+
         <style type="text/css" rel="stylesheet">
             body{
                 font-family: sans-serif;

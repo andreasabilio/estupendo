@@ -1,6 +1,6 @@
 
 var co        = require('co');
-var modRunner = require('./modRunner');
+var runmod = require('./runmod');
 var transport = require('./transport');
 
 // Module store
@@ -16,9 +16,12 @@ module.exports = {
         if( modId in _modules)
             return _modules[modId];
 
+        // console.log('>>>', window.estupendo);
+
         // Store module promise
-        _modules[modId] = transport.async(modId).then(function(msg){
-            modRunner(modId, msg.data[0]);
+        _modules[modId] = transport.async(modId).then(function(module){
+            // console.log('worker module:', module);
+            runmod(modId, module);
             return _buffer;
         });
 

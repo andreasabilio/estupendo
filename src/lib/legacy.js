@@ -1,6 +1,6 @@
 
 // Get transport utility
-var _modRunner = require('./modRunner');
+var _runmod = require('./runmod');
 var _transport = require('./transport');
 
 // Module store
@@ -18,7 +18,7 @@ module.exports = {
         var modSrc = _transport.sync(modId);
 
         // Place in DOM and run
-        _modRunner(modId, modSrc);
+        _runmod(modId, modSrc);
 
         // DEV: In time?
         return _modules[modId];

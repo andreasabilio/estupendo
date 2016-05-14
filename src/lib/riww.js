@@ -15,18 +15,17 @@ var setAsap   = require('setasap');
 
 var estupendoWrapper = function estupendoWrapper(){
 
-    var result;
+    var fn /* @@@ */;
 
-    // Define scoped modId
-    onmessage = null;
+    // Register message handler
+    onmessage = function(msg){
 
-    // Return module source
-    postMessage(result);
+        // Return module source
+        postMessage(fn.apply({}, msg.data));
 
-    // Terminate the worker
-    close();
-
-    /* @@@ DO NOT REMOVE*/
+        // Terminate the worker
+        close();
+    };
 };
 
 var buildBlob = function(blob){
@@ -57,43 +56,50 @@ var buildWorkerSrc = function(fnSrc){
     // Setup
     var workerSrc = [];
     var wrapSrc = estupendoWrapper.toString()
-        .replace('onmessage = null;', 'onmessage = ' + fnSrc.slice(0, -1))
-        .replace('/* @@@ DO NOT REMOVE*/', '};');
+        .replace("fn /* @@@ */", "fn = " + fnSrc);
+        // .replace('onmessage = null;', 'onmessage = ' + fnSrc.slice(0, -1))
+        // .replace('/* @@@ DO NOT REMOVE*/', '};');
 
     workerSrc.push("// Estupendo Web Worker\n");
     workerSrc.push("(");
     workerSrc.push(wrapSrc);
     workerSrc.push(")();");
 
+    // console.log(workerSrc.join(''));
+
     return workerSrc.join('');
 };
 
 
-module.exports = function(fnSrc, params){
+module.exports = function(fnSrc, args){
     "use strict";
 
     // Setup
     var timeout = 7000;
 
-
     // Launch worker
     var workerSrc  = buildWorkerSrc(fnSrc);
     var workerBlob = buildBlob(workerSrc);
-    var worker = new Worker(window.URL.createObjectURL(workerBlob));
+    var worker     = new Worker(window.URL.createObjectURL(workerBlob));
 
+    // Args must be an array
+    args = (Array.isArray(args))? args : [args];
 
     // Return a promise
     return new Promise(function(resolve, reject){
 
         // Register message handler
         worker.onmessage = resolve;
+
+        // XXX
+        // console.log('riww args', args);
         
         // SEnd params to worker
-        worker.postMessage(params);
+        worker.postMessage(args);
 
         // Setup timeout
         setTimeout(function(){
-            var error = new Error('riwn ERROR: Async request worker timed out', arguments);
+            var error = new Error('riww ERROR: Async request worker timed out', arguments);
             worker.terminate();
             reject(error);
         }, timeout);
