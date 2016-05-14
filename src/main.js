@@ -1,7 +1,4 @@
 
-console.log('===== RUNNING MAIN JS =====');
-
-
 // DEV //////////////////////////////////////////////////////////
 
 // window.estupendo.load('arr.diff', {});
@@ -31,5 +28,7 @@ var a = ['a', 'b', 'c', 'd'];
 var b = ['b', 'c'];
 
 var arrDiff = require('arr-diff');
+var arrFlatten = require('arr-flatten');
 
 console.log(arrDiff(a, b));
+console.log(arrFlatten([a, b]));

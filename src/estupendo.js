@@ -21,12 +21,6 @@
     var _dataset      = document.currentScript.dataset;
     _estupendo.config = JSON.parse(JSON.stringify(_dataset));
 
-    // {
-    //     root:    window.location.href,
-    //     main:    _dataset.main,
-    //     modules: _dataset.modules || 'node_modules'
-    // };
-
     // Define global estupendo object
     Object.assign(_estupendo, (window.Worker)? _worker : _legacy);
 
@@ -38,38 +32,13 @@
     // and accepting a generator fn in then()
     window.grequire = function(){};
 
+    // TODO
+    // Require all modules in array
+    // (possibly parallel)
+    window.requireAll = function(modList){};
+
     // Run main script?
     if(_estupendo.config.main)
         _estupendo.require(_estupendo.config.main);
 
 })();
-
-
-//
-// // DEV //////////////////////////////////////////////////////////
-//
-// // window.estupendo.load('arr.diff', {});
-//
-// console.log('ESTUPENDO:', estupendo);
-//
-// window.require('arr-diff').then(function(module){
-//     "use strict";
-//
-//     // console.log('MODULE:', module);
-//
-//     if( 'function' !== typeof module )
-//         return module;
-//
-//     var a = ['a', 'b', 'c', 'd'];
-//     var b = ['b', 'c'];
-//     console.log(module(a, b));
-//
-//     window.require('arr-flatten').then(function(arrFlatten){
-//         console.log(arrFlatten([a, b]));
-//     });
-// });
-//
-// // var a = ['a', 'b', 'c', 'd'];
-// // var b = ['b', 'c'];
-//
-// // console.log(arrDiff(a, b));

@@ -19,7 +19,7 @@ var buildUrl = function(target){
     "use strict";
 
     // XXX
-    console.log('CONFIG:', window.estupendo.config);
+    // console.log('CONFIG:', window.estupendo.config);
     
     // Parse defaults && policy
     var config = Object.assign({
@@ -67,7 +67,7 @@ var transport = module.exports = {
         var async  = false;
 
         // XXX
-        console.log('>>>', url);
+        // console.log('>>> url', url);
 
         // Open sync connection
         xhr.open(method, url, async);
