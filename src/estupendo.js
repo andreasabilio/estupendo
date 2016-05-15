@@ -1,44 +1,27 @@
+"use strict";
 
-(function(){
-    "use strict";
+// Abort if require is already defined
+if( 'require' in window ){
+    throw new Error('Estupendo ERROR: window.require is already defined');
+}
 
-    // Abort if require is already defined
-    if( 'require' in window ){
-        throw new Error('Estupendo ERROR: window.require is already defined');
-    }
+// Get dependencies
+var assignDeep = require('assign-deep');
+var core       = require('./lib/core');
+var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
 
-    // Abort if estupendo is already defined
-    if( 'estupendo' in window ){
-        throw new Error('Estupendo ERROR: window.require is already defined');
-    }
+var components = [
+    estupendo || {},
+    core,
+    {config: dataset}
+];
 
-    // Get dependencies
-    var _legacy    = require('./lib/legacy');
-    var _worker    = require('./lib/worker');
-    var _estupendo = window.estupendo = {};
+// Define global estupendo object
+var estupendo = window.estupendo = assignDeep.apply(null, components);
 
-    // Setup configuration
-    var _dataset      = document.currentScript.dataset;
-    _estupendo.config = JSON.parse(JSON.stringify(_dataset));
+// Register global require function
+window.require = estupendo.require;
 
-    // Define global estupendo object
-    Object.assign(_estupendo, (window.Worker)? _worker : _legacy);
-
-    // Register global require function
-    window.require = _estupendo.require;
-
-    // TODO
-    // Require returning promise
-    // and accepting a generator fn in then()
-    window.grequire = function(){};
-
-    // TODO
-    // Require all modules in array
-    // (possibly parallel)
-    window.requireAll = function(modList){};
-
-    // Run main script?
-    if(_estupendo.config.main)
-        _estupendo.require(_estupendo.config.main);
-
-})();
+// Run main script?
+if(estupendo.config.main)
+    estupendo.require(estupendo.config.main);

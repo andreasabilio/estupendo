@@ -1,18 +1,10 @@
 
 
-var riww   = require('./riww');
-var status = require('./status');
-
-var Promise   = require('promise-polyfill');
-var setAsap   = require('setasap');
+// var riww   = require('./riww');
+var status  = require('./status');
+var Promise = require('promise-polyfill');
+var setAsap = require('setasap');
     Promise._setImmediateFn(setAsap);
-
-
-var defaults = {
-    modules:    'node_modules',
-    loadPackage: false,
-    timeout:     7000
-};
 
 
 var getModFile = function(config){
@@ -30,7 +22,7 @@ var buildUrl = function(target){
     "use strict";
     
     // Parse defaults && policy
-    var config = Object.assign({}, defaults, window.estupendo.config, {
+    var config = Object.assign({}, window.estupendo.config, {
         root: window.location.href
     });
 
@@ -40,8 +32,6 @@ var buildUrl = function(target){
     // Setup
     var url    = [config.root];
     var prefix = target.substring(0,1);
-
-    // console.log('Prefix:', prefix);
 
     // Build url
     switch(prefix){
@@ -99,7 +89,7 @@ var request = function(target){
             setTimeout(function(){
                 var error = new Error('riww ERROR: Async request worker timed out', arguments);
                 reject(error);
-            }, defaults.timeout);
+            }, window.estupendo.config.timeout);
         });
     }else{
         out = {
