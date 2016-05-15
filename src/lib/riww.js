@@ -7,7 +7,7 @@
 window.URL = window.URL || window.webkitURL;
 
 // Dependencies
-var co        = require('co');
+// var co        = require('co');
 var Promise   = require('promise-polyfill');
 var setAsap   = require('setasap');
     Promise._setImmediateFn(setAsap);

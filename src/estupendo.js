@@ -42,8 +42,3 @@
         _estupendo.require(_estupendo.config.main);
 
 })();
-
-
-// DEV //////////////////////////////////////////////////////////
-
-console.log('ESTUPENDO:', estupendo);

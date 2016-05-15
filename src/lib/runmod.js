@@ -17,7 +17,7 @@ module.exports = function(modId, modSrc){
     var headNode   = document.querySelector('head');
 
     // Node settings
-    scriptNode.id        = modId;
+    scriptNode.id        = modId.split('/').join(':');
     scriptNode.innerHTML = wrapped;
     scriptNode.type      = "text\/javascript";
 

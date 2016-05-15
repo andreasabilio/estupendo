@@ -1,7 +1,18 @@
 
 
 var riww   = require('./riww');
-var status = require('./status')
+var status = require('./status');
+
+var Promise   = require('promise-polyfill');
+var setAsap   = require('setasap');
+    Promise._setImmediateFn(setAsap);
+
+
+var defaults = {
+    modules:    'node_modules',
+    loadPackage: false,
+    timeout:     7000
+};
 
 
 var getModFile = function(config){
@@ -17,17 +28,14 @@ var getModFile = function(config){
 
 var buildUrl = function(target){
     "use strict";
-
-    // XXX
-    // console.log('CONFIG:', window.estupendo.config);
     
     // Parse defaults && policy
-    var config = Object.assign({
-        modules:    'node_modules',
-        loadPackage: false
-    }, window.estupendo.config, {
+    var config = Object.assign({}, defaults, window.estupendo.config, {
         root: window.location.href
     });
+
+    // XXX
+    // console.log('CONFIG:', config);
 
     // Setup
     var url    = [config.root];
@@ -43,6 +51,9 @@ var buildUrl = function(target){
         case './':
             url.push(target.replace('./', ''));
             break;
+        case 'h':
+            throw new Error('Estupendo ERROR: Only same -origin requests are supported');
+            break;
         default:
             url.push(config.modules.split('/').join('') + '/');
             url.push(target);
@@ -54,56 +65,63 @@ var buildUrl = function(target){
 };
 
 
-var transport = module.exports = {
+var request = function(target){
+    "use strict";
 
-    // Sync loading strategy
-    sync: function(target){
-        "use strict";
+    // Setup
+    var out;
+    var req    = new XMLHttpRequest();
+    var method = 'GET';
+    var url    = encodeURI(target);
+    var async  = window.estupendo.config.async || true;
 
-        // Setup
-        var xhr    = new XMLHttpRequest();
-        var method = 'GET';
-        var url    = encodeURI(target);
-        var async  = false;
+    // XXX
+    // console.log('>>> url', url);
 
-        // XXX
-        // console.log('>>> url', url);
+    // Open sync connection
+    req.open(method, url, async);
 
-        // Open sync connection
-        xhr.open(method, url, async);
-        xhr.send(null);
+    if(async){
+        out = new Promise(function(resolve, reject){
 
-        // XXX
-        // console.log('transport xhr:', xhr.toString());
+            // Register load handler
+            req.addEventListener("load", function(){
+                resolve({
+                    status: req.status,
+                    response: req.responseText
+                });
+            });
 
-        return {
-            status: xhr.status,
-            response: xhr.responseText
-        };
-    },
+            // Run request
+            req.send(null);
 
-    // Async loading strategy
-    async: function(modId){
-        "use strict";
-
-        // XXX
-        // console.log('window:', window);
-
-        // Convert sync() to string for execution in worker
-        var fnSrc = transport.sync.toString();
-
-        // Prepare sync() args to be passed inside the worker
-        var args  = buildUrl(modId);
-
-        // Run In Web Worker
-        return riww(fnSrc, args).then(function(msg){
-
-            // XXX
-            // console.log('transport data', msg.data);
-
-            // TODO: Handle HTTP errors
-
-            return msg.data.response;
+            // Setup timeout
+            setTimeout(function(){
+                var error = new Error('riww ERROR: Async request worker timed out', arguments);
+                reject(error);
+            }, defaults.timeout);
         });
+    }else{
+        out = {
+            status: req.status,
+            response: req.responseText
+        };
     }
+
+    return out;
+};
+
+module.exports = function(modId){
+    "use strict";
+
+    // Run In Web Worker
+    return request(buildUrl(modId)).then(function(res){
+
+        // XXX
+        // console.log('transport response', res);
+
+        // TODO: Handle HTTP errors
+
+        return res.response;
+    });
 };
