@@ -1,12 +1,12 @@
 
 var co        = require('co');
-    // = require('./runmod');
 var transport = require('./transport');
 
 // Module store
 var modules = {};
 var buffer  = null;
 
+// Module runner
 var runmod = function(modId, modSrc){
     "use strict";
 
@@ -24,8 +24,14 @@ var runmod = function(modId, modSrc){
     var scriptNode = document.createElement("script");
     var headNode   = document.querySelector('head');
 
+    // Script id
+    var scriptId = (function(){
+        var main = window.estupendo.config.main;
+        return (main === modId)? 'main' : modId;
+    })();
+
     // Node settings
-    scriptNode.id        = modId.split('/').join(':');
+    scriptNode.id        = scriptId;
     scriptNode.innerHTML = wrapped;
     scriptNode.type      = "text\/javascript";
 
@@ -33,8 +39,10 @@ var runmod = function(modId, modSrc){
     headNode.appendChild(scriptNode);
 };
 
+
 module.exports = {
 
+    // Default config
     config: {
         modules:    'node_modules',
         loadPackage: false,

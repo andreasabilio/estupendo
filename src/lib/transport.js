@@ -1,6 +1,4 @@
 
-
-// var riww   = require('./riww');
 var status  = require('./status');
 var Promise = require('promise-polyfill');
 var setAsap = require('setasap');
@@ -47,7 +45,7 @@ var buildUrl = function(target){
         default:
             url.push(config.modules.split('/').join('') + '/');
             url.push(target);
-            url.push(getModFile(target));
+            url.push(getModFile(config));
     }
 
     return url.join('');
