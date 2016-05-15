@@ -1,64 +1,27 @@
+"use strict";
 
-(function(){
-    "use strict";
+// Abort if require is already defined
+if( 'require' in window ){
+    throw new Error('Estupendo ERROR: window.require is already defined');
+}
 
-    // Get dependencies
-    var _legacy    = require('./lib/legacy');
-    var _worker    = require('./lib/worker');
-    var _estupendo;
+// Get dependencies
+var assignDeep = require('assign-deep');
+var core       = require('./lib/core');
+var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
 
-    // Errors
-    var _requireE   = 'Estupendo ERROR: window.estupendo is already defined';
-    var _estupendoE = 'Estupendo ERROR: window.require is already defined';
+var components = [
+    estupendo || {},
+    core,
+    {config: dataset}
+];
 
+// Define global estupendo object
+var estupendo = window.estupendo = assignDeep.apply(null, components);
 
-    // Abort if require is already defined
-    if( 'require' in window ){
-        throw new Error(_requireE);
-    }
+// Register global require function
+window.require = estupendo.require;
 
-    // Abort if require is already defined
-    if( 'estupendo' in window ){
-        throw new Error(_estupendoE);
-    }
-
-
-    // Define global estupendo object
-    if(window.Worker)
-        _estupendo = window.estupendo = _worker;
-    else
-        _estupendo = window.estupendo = _legacy;
-
-    // Register global require function
-    window.require = _estupendo.require;
-
-})();
-
-
-
-
-// DEV //////////////////////////////////////////////////////////
-
-var arrDiff = window.require('arr-diff').then(function(module){
-    "use strict";
-
-    // console.log('MODULE:', module);
-
-    if( 'function' !== typeof module )
-        return module;
-
-    var a = ['a', 'b', 'c', 'd'];
-    var b = ['b', 'c'];
-    console.log(module(a, b));
-
-    window.require('arr-flatten').then(function(arrFlatten){
-        console.log(arrFlatten([a, b]));
-    });
-});
-
-// console.log('SCRIPT:', arrDiff);
-
-// var a = ['a', 'b', 'c', 'd'];
-// var b = ['b', 'c'];
-
-// console.log(arrDiff(a, b));
+// Run main script?
+if(estupendo.config.main)
+    estupendo.require(estupendo.config.main);
