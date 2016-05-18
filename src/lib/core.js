@@ -24,16 +24,14 @@ var runmod = function(modId, modSrc){
     var scriptNode = document.createElement("script");
     var headNode   = document.querySelector('head');
 
-    // Script id
-    var scriptId = (function(){
-        var main = window.estupendo.config.main;
-        return (main === modId)? 'main' : modId;
-    })();
 
     // Node settings
-    scriptNode.id        = scriptId;
     scriptNode.innerHTML = wrapped;
     scriptNode.type      = "text\/javascript";
+    scriptNode.id        = (function(){
+            var main = window.estupendo.config.main;
+            return (main === modId)? 'main' : modId;
+        })();
 
     // Insert into DOM and thereby run
     headNode.appendChild(scriptNode);
@@ -47,7 +45,7 @@ module.exports = {
         modules:    'node_modules',
         loadPackage: false,
         timeout:     7000,
-        force:       false
+        force:       true
     },
 
     // Public require

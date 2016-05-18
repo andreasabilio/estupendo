@@ -116,7 +116,7 @@ var response = function(res){
 
                 // Update config
                 config.main        = pkg.main;
-                config.loadPackage = false;
+                // config.loadPackage = false;
 
                 // Run new request
                 return request(config).then(response.bind(config));

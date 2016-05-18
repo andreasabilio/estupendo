@@ -3,9 +3,11 @@ var messages = require('./messages');
 
 
 var status = module.exports = {
+
     '200': function(res){
         return status.parse(res);
     },
+
     '404': function(res){
         "use strict";
 
