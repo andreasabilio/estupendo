@@ -1,51 +1,38 @@
 
+var errors  = require('./errors');
 var status  = require('./status');
 var Promise = require('promise-polyfill');
 var setAsap = require('setasap');
     Promise._setImmediateFn(setAsap);
 
 
-var getModFile = function(config){
-    "use strict";
-
-    if(!config.loadPackage)
-        return '/index.js';
-
-    // TODO
-    return false;
-};
-
-
-var buildUrl = function(target){
+var buildUrl = function(config){
     "use strict";
     
-    // Parse defaults && policy
-    var config = Object.assign({}, window.estupendo.config, {
+    // Prevent XSS
+    Object.assign(config, {
         root: window.location.href
     });
 
-    // XXX
-    // console.log('CONFIG:', config);
-
     // Setup
     var url    = [config.root];
-    var prefix = target.substring(0,1);
+    var prefix = config.target.substring(0,1);
 
     // Build url
     switch(prefix){
         case '/':
-            url.push(target.replace('/', ''));
+            url.push(config.target.replace('/', ''));
             break;
         case './':
-            url.push(target.replace('./', ''));
+            url.push(config.target.replace('./', ''));
             break;
         case 'h':
-            throw new Error('Estupendo ERROR: Only same -origin requests are supported');
+            throw new Error(errors.xssForbidden);
             break;
         default:
             url.push(config.modules.split('/').join('') + '/');
-            url.push(target);
-            url.push(getModFile(config));
+            url.push(config.target + '/');
+            url.push((config.loadPackage)? 'package.json' : config.main);
     }
 
     return url.join('');
@@ -53,15 +40,16 @@ var buildUrl = function(target){
 };
 
 
-var request = function(target){
+var request = function(config){
     "use strict";
 
     // Setup
     var out;
     var req    = new XMLHttpRequest();
     var method = 'GET';
-    var url    = encodeURI(target);
-    var async  = window.estupendo.config.async || true;
+    var url    = encodeURI(buildUrl(config));
+    // var url    = encodeURI(buildUrl(config));
+    var async  = config.async || true;
 
     // XXX
     // console.log('>>> url', url);
@@ -85,9 +73,9 @@ var request = function(target){
 
             // Setup timeout
             setTimeout(function(){
-                var error = new Error('riww ERROR: Async request worker timed out', arguments);
+                var error = new Error('Estupendo ERROR: Async request worker timed out');
                 reject(error);
-            }, window.estupendo.config.timeout);
+            }, config.timeout);
         });
     }else{
         out = {
@@ -99,17 +87,52 @@ var request = function(target){
     return out;
 };
 
-module.exports = function(modId){
+var limit = 0;
+
+var response = function(res){
     "use strict";
 
-    // Run In Web Worker
-    return request(buildUrl(modId)).then(function(res){
+    // XXX
+    // console.log('transport response res', res);
+    // console.log('transport response config', this);
+
+    // Config shorthand
+    var config = this;
+
+    // Try again
+    if( !config.loadPackage && 404 == res.status){
 
         // XXX
-        // console.log('transport response', res);
+        limit++;
 
-        // TODO: Handle HTTP errors
+        config.loadPackage = true;
+        return request(config).then(response.bind(config)).then(function(pkg){
 
-        return res.response;
+            // XXX
+            // console.log('PACKAGE.JSON:', pkg);
+
+            // Update config
+            config.main        = pkg.main;
+            config.loadPackage = false;
+
+            // Run new request
+            return request(config).then(response.bind(config));
+        });
+    }
+
+    return status[res.status].call(null, res.response);
+
+};
+
+var transport = module.exports = function(target){
+    "use strict";
+
+    // Setup config
+    var config = Object.assign({}, window.estupendo.config, {
+        target: target,
+        main:   'index.js'
     });
+
+    // Run In Web Worker
+    return request(config).then(response.bind(config));
 };

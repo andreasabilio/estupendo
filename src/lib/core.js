@@ -17,7 +17,7 @@ var runmod = function(modId, modSrc){
         + "function*(module, exports){\n"
         + modSrc.split('require(').join('yield require(')
         + "\n// Return to estupendo"
-        + "\nreturn module.exports || exports;\n});";
+        + "\nreturn module.exports || exports;\n\n});";
 
 
     // Nodes
@@ -49,6 +49,7 @@ module.exports = {
         timeout:     7000
     },
 
+    // Public require
     require: function(modId){
         "use strict";
 
@@ -56,9 +57,10 @@ module.exports = {
         if( modId in modules)
             return modules[modId];
 
-        // Store module promise
+        // Store module promise && run
         modules[modId] = transport(modId).then(function(modSrc){
-            // console.log('worker modSrc:', modSrc);
+            // XXX
+            // console.log('SOURCE:', modSrc);
             runmod(modId, modSrc);
             return buffer;
         });
@@ -67,7 +69,8 @@ module.exports = {
         return modules[modId];
     },
 
+    // Async runner
     run: function(modId, modFn){
-        buffer = co.wrap(modFn)({}, null);
+        buffer = co.wrap(modFn)({exports: {}}, null);
     }
 };

@@ -9,3 +9,10 @@ console.log('        a =', a);
 console.log('        b =', b);
 console.log('   arrDiff:', arrDiff(a, b));
 console.log('arrFlatten:', arrFlatten([a, b]));
+
+var async = require('async');
+
+
+console.log('ASYNC:', async);
+
+module.exports = {main: true};
