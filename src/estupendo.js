@@ -1,21 +1,23 @@
 "use strict";
 
-var errors = require('./lib/errors');
+// Get dependencies
+var assignDeep = require('assign-deep');
+var core       = require('./lib/core');
+var errors     = require('./lib/errors');
+var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
+
 
 // Abort if require is already defined
 if( 'require' in window ){
     throw new Error(errors.requireExists);
 }
 
-// Get dependencies
-var assignDeep = require('assign-deep');
-var core       = require('./lib/core');
-var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
 
+// Setup estupendo components
 var components = [
     estupendo || {},    // Allow defining settings in advance
     core,               // Core functions
-    {config: dataset}   // Prioritize tag data attribute settings
+    {config: dataset}   // Prioritize config from tag data attributes
 ];
 
 // Define global estupendo object

@@ -32,7 +32,7 @@ var buildUrl = function(config){
         default:
             url.push(config.modules.split('/').join('') + '/');
             url.push(config.target + '/');
-            url.push((config.loadPackage)? 'package.json' : config.main);
+            url.push(config.main);
     }
 
     return url.join('');
@@ -48,7 +48,6 @@ var request = function(config){
     var req    = new XMLHttpRequest();
     var method = 'GET';
     var url    = encodeURI(buildUrl(config));
-    // var url    = encodeURI(buildUrl(config));
     var async  = config.async || true;
 
     // XXX
@@ -87,8 +86,6 @@ var request = function(config){
     return out;
 };
 
-var limit = 0;
-
 var response = function(res){
     "use strict";
 
@@ -100,27 +97,33 @@ var response = function(res){
     var config = this;
 
     // Try again
-    if( !config.loadPackage && 404 == res.status){
+    if( config.force && 404 == res.status ){
 
-        // XXX
-        limit++;
+        // Warning
+        console.info('TIP: Setup a module alias to avoid loading package.json');
 
-        config.loadPackage = true;
-        return request(config).then(response.bind(config)).then(function(pkg){
+        // Get package.json
+        config.main = 'package.json';
 
-            // XXX
-            // console.log('PACKAGE.JSON:', pkg);
+        // Run request
+        return request(config)
+            .then(response.bind(config))
+            .then(function(pkg){
+                
+                // Is main defined?
+                if( !('main' in pkg) )
+                    throw new Error(errors.noMain);
 
-            // Update config
-            config.main        = pkg.main;
-            config.loadPackage = false;
+                // Update config
+                config.main        = pkg.main;
+                config.loadPackage = false;
 
-            // Run new request
-            return request(config).then(response.bind(config));
+                // Run new request
+                return request(config).then(response.bind(config));
         });
     }
 
-    return status[res.status].call(null, res.response);
+    return status[res.status].call(config, res.response);
 
 };
 

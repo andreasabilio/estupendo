@@ -46,7 +46,8 @@ module.exports = {
     config: {
         modules:    'node_modules',
         loadPackage: false,
-        timeout:     7000
+        timeout:     7000,
+        force:       true
     },
 
     // Public require
