@@ -3,13 +3,13 @@
 // Get dependencies
 var assignDeep = require('assign-deep');
 var core       = require('./lib/core');
-var errors     = require('./lib/errors');
+var messages   = require('./lib/messages');
 var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
 
 
 // Abort if require is already defined
 if( 'require' in window ){
-    throw new Error(errors.requireExists);
+    throw new Error(messages.error.requireExists);
 }
 
 

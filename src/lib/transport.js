@@ -1,8 +1,8 @@
 
-var errors  = require('./errors');
-var status  = require('./status');
-var Promise = require('promise-polyfill');
-var setAsap = require('setasap');
+var messages = require('./messages');
+var status   = require('./status');
+var Promise  = require('promise-polyfill');
+var setAsap  = require('setasap');
     Promise._setImmediateFn(setAsap);
 
 
@@ -27,7 +27,7 @@ var buildUrl = function(config){
             url.push(config.target.replace('./', ''));
             break;
         case 'h':
-            throw new Error(errors.xssForbidden);
+            throw new Error(messages.error.xssForbidden);
             break;
         default:
             url.push(config.modules.split('/').join('') + '/');
@@ -112,7 +112,7 @@ var response = function(res){
                 
                 // Is main defined?
                 if( !('main' in pkg) )
-                    throw new Error(errors.noMain);
+                    throw new Error(messages.error.noMain);
 
                 // Update config
                 config.main        = pkg.main;

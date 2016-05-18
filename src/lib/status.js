@@ -1,5 +1,5 @@
 
-var errors  = require('./errors');
+var messages = require('./messages');
 
 
 var status = module.exports = {
@@ -9,7 +9,7 @@ var status = module.exports = {
     '404': function(res){
         "use strict";
 
-        console.error(errors.notFound, this.target);
+        console.error(messages.error.notFound, this.target);
 
     },
 
