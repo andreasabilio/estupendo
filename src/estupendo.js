@@ -15,13 +15,14 @@ if( 'require' in window ){
 
 // Setup estupendo components
 var components = [
-    estupendo || {},    // Allow defining settings in advance
-    core,               // Core functions
-    {config: dataset}   // Prioritize config from tag data attributes
+    window.estupendo || {},    // Allow defining settings in advance
+    core,                      // Core functions
+    {config: dataset}          // Prioritize config from tag data attributes
 ];
 
 // Define global estupendo object
 var estupendo = window.estupendo = assignDeep.apply(null, components);
+
 
 // Register global require function
 window.require = estupendo.require;

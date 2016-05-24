@@ -136,6 +136,21 @@ var transport = module.exports = function(target){
         main:   'index.js'
     });
 
+    // Check for target aliases
+    if( config.alias && target in config.alias ){
+
+        // Get the alias
+        var alias   = config.alias[target];
+
+        // Remove leading slash
+        if('/' === alias[0])
+            alias = alias.substr(1);
+
+        // Set main to alias
+        config.main = alias;
+    }
+
+
     // Run In Web Worker
     return request(config).then(response.bind(config));
 };

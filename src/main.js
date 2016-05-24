@@ -1,5 +1,5 @@
 
-var arrDiff = require('arr-diff');
+var arrDiff    = require('arr-diff');
 var arrFlatten = require('arr-flatten');
 
 var a = ['a', 'b', 'c', 'd'];
