@@ -2935,8 +2935,6 @@ module.exports = {
 
         // Store module promise && run
         modules[modId] = transport(modId).then(function(modSrc){
-            // XXX
-            // console.log('SOURCE:', modSrc);
             runmod(modId, modSrc);
             return buffer;
         });
@@ -3038,60 +3036,42 @@ var request = function(config){
     "use strict";
 
     // Setup
-    var out;
     var req    = new XMLHttpRequest();
     var method = 'GET';
     var url    = encodeURI(buildUrl(config));
-    var async  = config.async || true;
-
-    // XXX
-    // console.log('>>> url', url);
 
     // Open sync connection
-    req.open(method, url, async);
+    req.open(method, url);
 
-    if(async){
-        out = new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject){
 
-            // Register load handler
-            req.addEventListener("load", function(){
-                resolve({
-                    status: req.status,
-                    response: req.responseText
-                });
+        // Register load handler
+        req.addEventListener("load", function(){
+            resolve({
+                status: req.status,
+                response: req.responseText
             });
-
-            // Run request
-            req.send(null);
-
-            // Setup timeout
-            setTimeout(function(){
-                var error = new Error('Estupendo ERROR: Async request worker timed out');
-                reject(error);
-            }, config.timeout);
         });
-    }else{
-        out = {
-            status: req.status,
-            response: req.responseText
-        };
-    }
 
-    return out;
+        // Run request
+        req.send(null);
+
+        // Setup timeout
+        setTimeout(function(){
+            var error = new Error('Estupendo ERROR: Async request worker timed out');
+            reject(error);
+        }, config.timeout);
+    });
 };
 
 var response = function(res){
     "use strict";
 
-    // XXX
-    // console.log('transport response res', res);
-    // console.log('transport response config', this);
-
     // Config shorthand
     var config = this;
 
     // Try again
-    if( config.force && 404 == res.status ){
+    if( config.force && 404 == res.status && 'package.json' !== config.main ){
 
         // Warning
         console.info('TIP: Setup a module alias to avoid loading package.json');
@@ -3109,8 +3089,7 @@ var response = function(res){
                     throw new Error(messages.error.noMain);
 
                 // Update config
-                config.main        = pkg.main;
-                // config.loadPackage = false;
+                config.main = pkg.main;
 
                 // Run new request
                 return request(config).then(response.bind(config));
