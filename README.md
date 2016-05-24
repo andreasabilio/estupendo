@@ -1,4 +1,4 @@
 # estupendo
-Async npm module load in the browser
+Async lazy npm module loader for the browser
 
 WIP
