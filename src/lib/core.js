@@ -58,8 +58,6 @@ module.exports = {
 
         // Store module promise && run
         modules[modId] = transport(modId).then(function(modSrc){
-            // XXX
-            // console.log('SOURCE:', modSrc);
             runmod(modId, modSrc);
             return buffer;
         });
