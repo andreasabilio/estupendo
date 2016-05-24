@@ -2846,7 +2846,6 @@ process.umask = function() { return 0; };
 // Get dependencies
 var assignDeep = require('assign-deep');
 var core       = require('./lib/core');
-var messages   = require('./lib/messages');
 var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
 
 
@@ -2874,7 +2873,7 @@ window.require = estupendo.require;
 if(estupendo.config.main)
     estupendo.require(estupendo.config.main);
 
-},{"./lib/core":15,"./lib/messages":16,"assign-deep":1}],15:[function(require,module,exports){
+},{"./lib/core":15,"assign-deep":1}],15:[function(require,module,exports){
 
 var co        = require('co');
 var transport = require('./transport');
@@ -2935,8 +2934,6 @@ module.exports = {
 
         // Store module promise && run
         modules[modId] = transport(modId).then(function(modSrc){
-            // XXX
-            // console.log('SOURCE:', modSrc);
             runmod(modId, modSrc);
             return buffer;
         });
@@ -2995,6 +2992,7 @@ var status = module.exports = {
 
 var messages = require('./messages');
 var status   = require('./status');
+var util     = require('./util');
 var Promise  = require('promise-polyfill');
 var setAsap  = require('setasap');
     Promise._setImmediateFn(setAsap);
@@ -3073,6 +3071,7 @@ var response = function(res){
     var config = this;
 
     // Try again
+    // TODO: not breaking out for not found index && pkg
     if( config.force && 404 == res.status ){
 
         // Warning
@@ -3105,28 +3104,49 @@ var response = function(res){
 var transport = module.exports = function(target){
     "use strict";
 
+    // Remove leading slash?
+    // target = util.unSlash(target);
+
     // Setup config
     var config = Object.assign({}, window.estupendo.config, {
         target: target,     // Target module
-        main:   'index.js'  // Default
+        main:   'index.js'  // Always start looking for index.js
     });
+
+
+    // Analyze target
+    // var parts = target.split('/');
+    //
+    // // XXX
+    // console.log('>>> parts', parts);
+
 
     // Check for target aliases
     if( config.alias && target in config.alias ){
 
-        // Get the alias
-        var alias = config.alias[target];
-
-        // Remove leading slash?
-        if('/' === alias[0])
-            alias = alias.substr(1);
-
-        // Set main to alias
-        config.main = alias;
+        // Get the alias && set as main
+        config.main = util.unSlash( config.alias[target] );
     }
+
+    // XXX
+    console.log('CONFIG:', config);
 
 
     // Run In Web Worker
     return request(config).then(response.bind(config));
 };
-},{"./messages":16,"./status":17,"promise-polyfill":12,"setasap":13}]},{},[14]);
+},{"./messages":16,"./status":17,"./util":19,"promise-polyfill":12,"setasap":13}],19:[function(require,module,exports){
+
+module.exports = {
+
+    // Remove leading slash if present
+    unSlash: function(string){
+        "use strict";
+
+        if( '/' === string[0] )
+            string = string.substr(1);
+
+        return string;
+    }
+};
+},{}]},{},[14]);

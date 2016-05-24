@@ -1,6 +1,7 @@
 
 var messages = require('./messages');
 var status   = require('./status');
+var util     = require('./util');
 var Promise  = require('promise-polyfill');
 var setAsap  = require('setasap');
     Promise._setImmediateFn(setAsap);
@@ -79,6 +80,7 @@ var response = function(res){
     var config = this;
 
     // Try again
+    // TODO: not breaking out for not found index && pkg
     if( config.force && 404 == res.status ){
 
         // Warning
@@ -111,25 +113,32 @@ var response = function(res){
 var transport = module.exports = function(target){
     "use strict";
 
+    // Remove leading slash?
+    // target = util.unSlash(target);
+
     // Setup config
     var config = Object.assign({}, window.estupendo.config, {
         target: target,     // Target module
-        main:   'index.js'  // Default
+        main:   'index.js'  // Always start looking for index.js
     });
+
+
+    // Analyze target
+    // var parts = target.split('/');
+    //
+    // // XXX
+    // console.log('>>> parts', parts);
+
 
     // Check for target aliases
     if( config.alias && target in config.alias ){
 
-        // Get the alias
-        var alias = config.alias[target];
-
-        // Remove leading slash?
-        if('/' === alias[0])
-            alias = alias.substr(1);
-
-        // Set main to alias
-        config.main = alias;
+        // Get the alias && set as main
+        config.main = util.unSlash( config.alias[target] );
     }
+
+    // XXX
+    console.log('CONFIG:', config);
 
 
     // Run In Web Worker

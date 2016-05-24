@@ -3,7 +3,6 @@
 // Get dependencies
 var assignDeep = require('assign-deep');
 var core       = require('./lib/core');
-var messages   = require('./lib/messages');
 var dataset    = JSON.parse(JSON.stringify(document.currentScript.dataset));
 
 

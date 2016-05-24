@@ -14,5 +14,3 @@ var async = require('async');
 
 
 console.log('ASYNC:', async);
-
-module.exports = {main: true};

@@ -23,6 +23,7 @@ var notFound = function(req, res){
 // Register www static dir
 server.use('/modules', express.static(path.resolve(__dirname, '../node_modules')), notFound);
 server.use('/src', express.static(path.resolve(__dirname, '../src')));
+server.use('/test', express.static(path.resolve(__dirname, '../test/www')));
 server.use('/*', express.static(path.resolve(__dirname, './www')), notFound);
 
 // Register routes
