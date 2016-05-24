@@ -1,5 +1,5 @@
 
-var arrDiff = require('arr-diff');
+var arrDiff    = require('arr-diff');
 var arrFlatten = require('arr-flatten');
 
 var a = ['a', 'b', 'c', 'd'];
@@ -9,3 +9,10 @@ console.log('        a =', a);
 console.log('        b =', b);
 console.log('   arrDiff:', arrDiff(a, b));
 console.log('arrFlatten:', arrFlatten([a, b]));
+
+var async = require('async');
+
+
+console.log('ASYNC:', async);
+
+module.exports = {main: true};

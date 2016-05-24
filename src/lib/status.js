@@ -1,39 +1,25 @@
 
+var messages = require('./messages');
+
+
 var status = module.exports = {
-    '200': function(){
-        "use strict";
 
-        // XXX
-        // console.log('<<< 200');
-
-        try{
-            return JSON.parse(this.responseText);
-        }catch(e){
-            return [this.responseText];
-        }
+    '200': function(res){
+        return status.parse(res);
     },
-    '304': function(){
+
+    '404': function(res){
         "use strict";
 
-        // XXX
-        console.log('<<< 304');
+        console.error(messages.error.notFound, this.target);
 
-        try{
-            return JSON.parse(this.responseText);
-        }catch(e){
-            return this.responseText;
-        }
     },
-    '404': function(){
-        "use strict";
 
-        // XXX
-        console.log('<<< 404: Not found!');
-
+    parse: function(res){
         try{
-            return JSON.parse(this.responseText);
+            return JSON.parse(res);
         }catch(e){
-            return this.responseText;
+            return res;
         }
     }
 };

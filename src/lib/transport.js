@@ -1,51 +1,38 @@
 
-var status  = require('./status');
-var Promise = require('promise-polyfill');
-var setAsap = require('setasap');
+var messages = require('./messages');
+var status   = require('./status');
+var Promise  = require('promise-polyfill');
+var setAsap  = require('setasap');
     Promise._setImmediateFn(setAsap);
 
 
-var getModFile = function(config){
-    "use strict";
-
-    if(!config.loadPackage)
-        return '/index.js';
-
-    // TODO
-    return false;
-};
-
-
-var buildUrl = function(target){
+var buildUrl = function(config){
     "use strict";
     
-    // Parse defaults && policy
-    var config = Object.assign({}, window.estupendo.config, {
+    // Prevent XSS
+    Object.assign(config, {
         root: window.location.href
     });
 
-    // XXX
-    // console.log('CONFIG:', config);
-
     // Setup
     var url    = [config.root];
-    var prefix = target.substring(0,1);
+    var prefix = config.target.substring(0,1);
 
     // Build url
     switch(prefix){
         case '/':
-            url.push(target.replace('/', ''));
+            url.push(config.target.replace('/', ''));
             break;
         case './':
-            url.push(target.replace('./', ''));
+            url.push(config.target.replace('./', ''));
             break;
         case 'h':
-            throw new Error('Estupendo ERROR: Only same -origin requests are supported');
+            throw new Error(messages.error.xssForbidden);
             break;
         default:
             url.push(config.modules.split('/').join('') + '/');
-            url.push(target);
-            url.push(getModFile(config));
+            url.push(config.target + '/');
+            url.push(config.main);
     }
 
     return url.join('');
@@ -53,15 +40,15 @@ var buildUrl = function(target){
 };
 
 
-var request = function(target){
+var request = function(config){
     "use strict";
 
     // Setup
     var out;
     var req    = new XMLHttpRequest();
     var method = 'GET';
-    var url    = encodeURI(target);
-    var async  = window.estupendo.config.async || true;
+    var url    = encodeURI(buildUrl(config));
+    var async  = config.async || true;
 
     // XXX
     // console.log('>>> url', url);
@@ -85,9 +72,9 @@ var request = function(target){
 
             // Setup timeout
             setTimeout(function(){
-                var error = new Error('riww ERROR: Async request worker timed out', arguments);
+                var error = new Error('Estupendo ERROR: Async request worker timed out');
                 reject(error);
-            }, window.estupendo.config.timeout);
+            }, config.timeout);
         });
     }else{
         out = {
@@ -99,17 +86,71 @@ var request = function(target){
     return out;
 };
 
-module.exports = function(modId){
+var response = function(res){
     "use strict";
 
-    // Run In Web Worker
-    return request(buildUrl(modId)).then(function(res){
+    // XXX
+    // console.log('transport response res', res);
+    // console.log('transport response config', this);
 
-        // XXX
-        // console.log('transport response', res);
+    // Config shorthand
+    var config = this;
 
-        // TODO: Handle HTTP errors
+    // Try again
+    if( config.force && 404 == res.status ){
 
-        return res.response;
+        // Warning
+        console.info('TIP: Setup a module alias to avoid loading package.json');
+
+        // Get package.json
+        config.main = 'package.json';
+
+        // Run request
+        return request(config)
+            .then(response.bind(config))
+            .then(function(pkg){
+                
+                // Is main defined?
+                if( !('main' in pkg) )
+                    throw new Error(messages.error.noMain);
+
+                // Update config
+                config.main        = pkg.main;
+                // config.loadPackage = false;
+
+                // Run new request
+                return request(config).then(response.bind(config));
+        });
+    }
+
+    return status[res.status].call(config, res.response);
+
+};
+
+var transport = module.exports = function(target){
+    "use strict";
+
+    // Setup config
+    var config = Object.assign({}, window.estupendo.config, {
+        target: target,
+        main:   'index.js'
     });
+
+    // Check for target aliases
+    if( config.alias && target in config.alias ){
+
+        // Get the alias
+        var alias   = config.alias[target];
+
+        // Remove leading slash
+        if('/' === alias[0])
+            alias = alias.substr(1);
+
+        // Set main to alias
+        config.main = alias;
+    }
+
+
+    // Run In Web Worker
+    return request(config).then(response.bind(config));
 };
