@@ -48,42 +48,29 @@ var request = function(config){
     var req    = new XMLHttpRequest();
     var method = 'GET';
     var url    = encodeURI(buildUrl(config));
-    var async  = config.async || true;
-
-    // XXX
-    // console.log('>>> url', url);
 
     // Open sync connection
-    req.open(method, url, async);
+    req.open(method, url);
 
-    if(async){
-        out = new Promise(function(resolve, reject){
+    return new Promise(function(resolve, reject){
 
-            // Register load handler
-            req.addEventListener("load", function(){
-                resolve({
-                    status: req.status,
-                    response: req.responseText
-                });
+        // Register load handler
+        req.addEventListener("load", function(){
+            resolve({
+                status: req.status,
+                response: req.responseText
             });
-
-            // Run request
-            req.send(null);
-
-            // Setup timeout
-            setTimeout(function(){
-                var error = new Error('Estupendo ERROR: Async request worker timed out');
-                reject(error);
-            }, config.timeout);
         });
-    }else{
-        out = {
-            status: req.status,
-            response: req.responseText
-        };
-    }
 
-    return out;
+        // Run request
+        req.send(null);
+
+        // Setup timeout
+        setTimeout(function(){
+            var error = new Error('Estupendo ERROR: Async request worker timed out');
+            reject(error);
+        }, config.timeout);
+    });
 };
 
 var response = function(res){
@@ -132,17 +119,17 @@ var transport = module.exports = function(target){
 
     // Setup config
     var config = Object.assign({}, window.estupendo.config, {
-        target: target,
-        main:   'index.js'
+        target: target,     // Target module
+        main:   'index.js'  // Default
     });
 
     // Check for target aliases
     if( config.alias && target in config.alias ){
 
         // Get the alias
-        var alias   = config.alias[target];
+        var alias = config.alias[target];
 
-        // Remove leading slash
+        // Remove leading slash?
         if('/' === alias[0])
             alias = alias.substr(1);
 
