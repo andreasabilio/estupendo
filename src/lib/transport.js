@@ -44,7 +44,6 @@ var request = function(config){
     "use strict";
 
     // Setup
-    var out;
     var req    = new XMLHttpRequest();
     var method = 'GET';
     var url    = encodeURI(buildUrl(config));
@@ -67,7 +66,7 @@ var request = function(config){
 
         // Setup timeout
         setTimeout(function(){
-            var error = new Error('Estupendo ERROR: Async request worker timed out');
+            var error = new Error('Estupendo ERROR: module request timed out');
             reject(error);
         }, config.timeout);
     });
@@ -75,10 +74,6 @@ var request = function(config){
 
 var response = function(res){
     "use strict";
-
-    // XXX
-    // console.log('transport response res', res);
-    // console.log('transport response config', this);
 
     // Config shorthand
     var config = this;
@@ -102,8 +97,7 @@ var response = function(res){
                     throw new Error(messages.error.noMain);
 
                 // Update config
-                config.main        = pkg.main;
-                // config.loadPackage = false;
+                config.main = pkg.main;
 
                 // Run new request
                 return request(config).then(response.bind(config));
